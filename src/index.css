@@ -1,0 +1,29 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');   /*google urbanist and montserrat fonts*/
+
+
+@import "tailwindcss";  /* Import Tailwind CSS */
+
+* {
+  font-family: 'Urbanist', sans-serif;
+}
+
+.landing-page {
+  @apply overflow-y-auto h-screen;
+}
+
+.landing-page-content {
+  @apply overflow-visible;
+}
+
+.card-btn{
+  @apply flex items-center gap-3 text-[12px] font-medium text-gray-600 hover:text-purple-600;
+}
+
+.add-btn{
+  @apply flex items-center gap-1.5 text-xs md:text-sm font-medium text-green-700 whitespace-nowrap hover:text-green-900;
+}
+
+.add-btn-fill {
+  @apply text-white bg-purple-600;
+}
