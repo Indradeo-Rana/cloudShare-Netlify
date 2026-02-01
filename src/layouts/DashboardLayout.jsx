@@ -1,56 +1,39 @@
+
 import { useUser } from "@clerk/clerk-react";
 import Navbar from "../components/Navbar";
 import SideMenu from "../components/SideMenu";
 import { useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
-import { retryAxiosCall } from "../utils/retryUtils";
 
 const DashboardLayout = ({ children, activeMenu }) => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
 
-    // ✅ ENSURE PROFILE EXISTS IN MONGODB WITH RETRY LOGIC
+    // ✅ ENSURE PROFILE EXISTS IN MONGODB
     useEffect(() => {
         if (!isLoaded || !user) return;
 
         const ensureProfile = async () => {
             try {
                 const token = await getToken();
-
-                // Retry the API call up to 3 times with exponential backoff
-                await retryAxiosCall(
-                    () =>
-                        axios.post(
-                            "https://cloudshare-api-production.up.railway.app/profile/ensure",
-                            {
-                                clerkId: user.id,
-                                email: user.primaryEmailAddress?.emailAddress || "",
-                                firstName: user.firstName || "",
-                                lastName: user.lastName || "",
-                                photoUrl: user.imageUrl || "",
-                            },
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            }
-                        ),
-                    3,
-                    1000
+                await axios.post(
+                    "https://cloudshare-api-production.up.railway.app/profile/ensure",
+                    {
+                        clerkId: user.id,
+                        email: user.primaryEmailAddress?.emailAddress || "",
+                        firstName: user.firstName || "",
+                        lastName: user.lastName || "",
+                        photoUrl: user.imageUrl || "",
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
                 );
-
-                console.log("✅ User profile ensured successfully");
             } catch (error) {
-                // If retries are exhausted, log error but don't break the app
-                if (error.code === 'ERR_NETWORK') {
-                    console.warn(
-                        "⚠️ Backend is unreachable. User can still access dashboard with limited features."
-                    );
-                } else {
-                    console.error("❌ Failed to ensure profile in DB:", error.message);
-                }
-                // Don't throw - allow dashboard to load even if profile setup fails
+                console.error("Failed to ensure profile in DB", error);
             }
         };
 
